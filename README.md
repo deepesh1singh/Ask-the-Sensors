@@ -154,8 +154,8 @@ cp /path/to/*.zip data/downloads/
 python -m scripts.setup_data
 
 # 4. configure the LLM connection (defaults shown; override if needed)
-export OLLAMA_HOST="http://10.14.20.23:11434"
-export OLLAMA_MODEL="qwen3:8b"
+export OLLAMA_HOST=" "
+export OLLAMA_MODEL=" "
 
 # 5. run the full pipeline: preprocessing -> features -> train -> evaluate -> figures
 python -m scripts.run_all
