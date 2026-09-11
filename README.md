@@ -52,88 +52,7 @@ downloadable pieces. **You only need two of them**:
 If you already downloaded the two large raw-measurement archives, you do not
 need to place them anywhere for this code to run; it never reads them.
 
-## 1b. A note on per-user label-column variation (including "STANDING_AND_MOVING")
-
-The brief lists 7 main-activity/posture classes, and **all 7 are real,
-ExtraSensory-published labels** (`STANDING_AND_MOVING` is documented on
-ExtraSensory's own site as present for 58 of 60 users, 29,754 examples).
-An earlier version of this project's docs incorrectly claimed this label
-was entirely absent from the public release — that conclusion was based on
-inspecting only one real user's file, which happens to be one of a small
-number of users whose file lacks that particular column (each user's
-`.features_labels.csv` can have a slightly different set of label columns,
-since a label with zero examples for that user isn't included in their
-file's header).
-
-To handle this correctly, `data_io.py::get_primary_activity_label` looks up
-each of the 7 classes defensively per user: if a given user's file is
-missing one of the label columns, that class is simply treated as "never
-applies to this user" rather than raising an error. This means:
-- `scripts/train.py` trains on the full 7-class label space across all 60
-  users without crashing on schema differences between users;
-- questions about any of the 7 classes (including "standing and moving")
-  are answered normally through the regular Task 1-4 pipeline, with no
-  special-casing.
-
-## 2. Where to put the downloaded files
-
-You can get the primary data **either** as one bulk archive **or** as many
-per-user archives — both work with this codebase:
-
-- **Bulk**: `ExtraSensory.per_uuid_features_labels.zip` from
-  http://extrasensory.ucsd.edu/#download (~215 MB, all ~60 users at once).
-- **Per-user**: one zip per user, e.g.
-  `00EABED2-271D-49D8-B599-1D4A09240601_features_labels_csv.zip` — each
-  contains a single plain `.csv` (not gzip-compressed) for that one user.
-  If this is what you have, download/collect **all ~60 of them**.
-
-For the cross-validation partition, download the official 5-fold split —
-you may see it named `cv5Folds.zip` or `Cross_validation_partition.zip`;
-both are accepted.
-
-**You do not need to unzip anything by hand.** Place whichever zip file(s)
-you have directly into `data/downloads/` (mixing bulk + per-user is fine),
-then run `python -m scripts.setup_data` (see Quick start below), which:
-
-- extracts every recognized primary-data zip's contents into
-  `data/raw/primary_data_files/`, flattening away any internal folder
-  structure and keeping only `<UUID>.features_labels.csv` or `.csv.gz`
-  files;
-- extracts the CV partition zip's contents into `data/raw/cv5Folds/`,
-  flattening away its internal folder (e.g. `Cross validation partition/`)
-  so you end up with the fold `.txt` files directly inside `cv5Folds/`;
-- validates that ~60 users and all 5 folds' files are present and reports
-  clearly if anything is missing.
-
-After a successful run, the layout looks like:
-
-```text
-ask-the-sensors/
-└── data/
-    ├── downloads/                                    <- your original zip(s), untouched
-    │   ├── ExtraSensory.per_uuid_features_labels.zip  <- if using the bulk archive
-    │   ├── <UUID-1>_features_labels_csv.zip           <- if using per-user archives
-    │   ├── <UUID-2>_features_labels_csv.zip
-    │   ├── ...
-    │   └── Cross_validation_partition.zip             <- (or cv5Folds.zip)
-    └── raw/
-        ├── primary_data_files/                        <- populated by setup_data.py
-        │   ├── <UUID-1>.features_labels.csv           <- plain csv (per-user zips)
-        │   ├── <UUID-2>.features_labels.csv.gz         <- or gzip csv (bulk zip)
-        │   ├── ...                                     (60 files total)
-        └── cv5Folds/                                   <- populated by setup_data.py
-            ├── fold_0_test_android_uuids.txt
-            ├── fold_0_test_iphone_uuids.txt
-            ├── fold_0_train_android_uuids.txt
-            ├── fold_0_train_iphone_uuids.txt
-            ├── fold_1_test_android_uuids.txt
-            ├── ...                                     (5 folds x 4 files = 20 files total)
-```
-
-`src/ask_the_sensors/data_io.py` reads either `.csv` or `.csv.gz` per-user
-files transparently, so it doesn't matter which download route you used.
-
-## 3. Quick start
+## 2. Quick start
 
 ```bash
 # 0. from the repository root
@@ -173,7 +92,7 @@ python -m scripts.ask --raw-stream path/to/recording.csv \
 python -m scripts.answer_batch --questions path/to/questions.json --out outputs/answers/answers.json
 ```
 
-## 4. Repository layout
+## 3. Repository layout
 
 ```
 ask-the-sensors/
