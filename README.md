@@ -9,7 +9,7 @@ This repository implements a full pipeline:
 Sensor recording (accel + gyro features, 25 Hz canonical rate)
         │
         ▼
-Preprocessing  (clean / align / resample the per-minute example stream)
+Preprocessing  (clean / align / resample the per-minutes example stream)
         │
         ▼
 Recognition layer   (compact 7-class activity classifier, engineered
